@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}" type="text/css" media="all">
+<script type="text/javascript">
+    function check() {
+        var a=document.getElementById("pwd1").value;
+        var b=document.getElementById("pwd2").value;
+        if(a==b){
+            document.getElementById("span").innerHTML="两次密码相同"
+        }
+        else {
+            document.getElementById("span").innerHTML="两次密码不相同，请重新输入"
+        }
+    }
+</script>
+</head>
+<body>
+<div class="pwd">
+<form method="post" action="/update/">
+    当前登录id:<input type="text"name="id"value="{{ user_id}}"><br>
+输入原来密码：<input type="password" name="pwd"><br>
+输入新密码：<input type="password"name="pwd1" id="pwd1"><br>
+    再次输入：<input type="password" name="pwd2" id="pwd2" onblur="check()"><span id="span"></span><br>
+<input type="submit" value="确认">
+    <a href="/success">返回首页</a>
+</form>
+</div>
+</body>
+</html>

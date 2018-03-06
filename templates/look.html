@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}" type="text/css" media="all">
+</head>
+<body>
+<div class="look">
+姓名：{{user.name }}<br>
+年龄：{{user.age }}<br>
+邮箱：{{user.email }}<br>
+id:{{ user.id }}<br>
+    <a href="/login">退出</a>
+    <a href="/update?id={{ user.id}}">修改密码</a>
+</div>
+</body>
+</html>
