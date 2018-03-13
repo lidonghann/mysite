@@ -29,6 +29,7 @@ urlpatterns = [
     url('^myphoto/$',learn_views.updateInfo),
     url('^back_in/$',learn_views.back_in),
     url('^write/$',learn_views.write),
-    url('^write_blog/$',learn_views.write_blog)
+    url('^write_blog/$',learn_views.write_blog),
+    url('^look/update_infor/', learn_views.update_information)
     # url(r'^ckeditor/', include('ckeditor.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

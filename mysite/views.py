@@ -40,12 +40,15 @@ def login(request):
         name = request.POST['name']
         pwd = request.POST['pwd']
         c = user.objects.filter(name=name, pwd=pwd).first()
-        request.session['name'] = c.name
-        print "request.session['name']", request.session['name']
-        if c:
-            return render(request, 'success.html', {'user': c})
-        else:
-            return HttpResponse("登陆失败")
+        try:
+            request.session['name'] = c.name
+            print "request.session['name']", request.session['name']
+            if c:
+                return render(request, 'success.html', {'user': c})
+            else:
+                return HttpResponse("登陆失败")
+        except AttributeError:
+            return HttpResponse("登陆失败,请检查用户名密码是否正确")
     else:
         return render(request, 'login.html')
         # models.person.objects.create(name="lidonghan",age=23)
@@ -81,14 +84,27 @@ def look(request):
         # data_dict['name'] = i.name
         # data_dict['age'] = i.age
         # print data_dict
-
-
+@csrf_exempt
+def update_information(request):
+    print ("开始执行update_information")
+    if request.method == 'GET':
+        id = request.GET['id']
+        username = request.GET['name']
+        userage = request.GET['age']
+        email = request.GET['email']
+        new_user = user.objects.filter(id=id).first()
+        new_user.name = username
+        new_user.age = userage
+        new_user.email = email
+        new_user.save()
+        return render(request, 'success.html', {'user': new_user})
+    else:
+        pass
 @csrf_exempt
 def update(request):
     if request.method == 'POST':
         pwd = request.POST['pwd']
         id = request.POST['id']
-        print id
         pwd1 = request.POST['pwd1']
         pwd2 = request.POST['pwd2']
         uu = user.objects.filter(id=id, pwd=pwd).first()
@@ -99,8 +115,7 @@ def update(request):
         else:
             return HttpResponse('密码不正确')
     else:
-        user_id = request.GET.get('id', '')
-        print 'id:', user_id
+        user_id = request.GET['id']
         return render(request, 'update.html', {'user_id': user_id})
 
 
