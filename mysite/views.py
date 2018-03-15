@@ -42,6 +42,8 @@ def login(request):
         c = user.objects.filter(name=name, pwd=pwd).first()
         try:
             request.session['name'] = c.name
+            request.session['id'] = c.id
+            print "idddddddddddddd", request.session['id']
             print "request.session['name']", request.session['name']
             if c:
                 return render(request, 'success.html', {'user': c})
@@ -66,7 +68,7 @@ def login(request):
 @csrf_exempt
 def look(request):
     print request.GET
-    id = request.GET.get('id', '')
+    id = request.session['id']
     # pwd=request.GET.get('pwd')
     user_info = user.objects.filter(id=id).first()
     print user_info.name
@@ -76,6 +78,7 @@ def look(request):
         dictw['age'] = user_info.age
         dictw['email'] = user_info.email
         dictw['id'] = user_info.id
+        print "dictw", dictw
         return render(request, 'look.html', {'user': dictw})
         # print user, type(user)
         # data_dict = {}
@@ -86,7 +89,6 @@ def look(request):
         # print data_dict
 @csrf_exempt
 def update_information(request):
-    print ("开始执行update_information")
     if request.method == 'GET':
         id = request.GET['id']
         username = request.GET['name']
@@ -97,11 +99,12 @@ def update_information(request):
         new_user.age = userage
         new_user.email = email
         new_user.save()
-        return render(request, 'success.html', {'user': new_user})
+        return render(request, 'update_success.html', {'user': new_user})
     else:
         pass
 @csrf_exempt
 def update(request):
+    print ("开始执行update")
     if request.method == 'POST':
         pwd = request.POST['pwd']
         id = request.POST['id']
@@ -111,7 +114,7 @@ def update(request):
         if uu:
             uu.pwd = pwd2
             uu.save()
-            return HttpResponse('修改成功')
+            return render(request, 'update_success.html', {'user': uu})
         else:
             return HttpResponse('密码不正确')
     else:
@@ -120,7 +123,13 @@ def update(request):
 
 
 def success(request):
-    return render(request, 'success.html')
+    id = request.session['id']
+    print "444444444", id
+    name =request.session['name']
+    infor = {}
+    infor['id'] = id
+    infor['name'] = name
+    return render(request, 'success.html', {'user': infor})
 
 
 @csrf_exempt
@@ -166,23 +175,38 @@ def updateInfo(request):
                     tmp = {}
                     tmp['name'] = foo.name
                     tmp['road'] = ''.join(['/', unicode(foo.photo)])
+                    tmp['length'] = dicta.__len__()
                     dictb.append(tmp)
-                return render(request, 'photo.html', {'dictb': dictb})
+                print "dictb", dictb
+                for aa in dictb:
+                    print aa
+                    # print "22222", aa.road
+                    # print "33333", aa.length
+                return render(request, 'index.html', {'dictb': dictb})
             else:
                 return HttpResponse('上传失败')
         return HttpResponse('图片为空')
     elif request.method == 'GET':
-        return render(request, 'photo.html')
+        return render(request, 'index.html')
 
 
 def back_in(request):
-    t = request.session['name']
-    return render(request, 'success.html')
+    id = request.session['id']
+    print "222222222222", id
+    name = request.session['name']
+    infor = {}
+    infor['id'] = id
+    infor['name'] = name
+    return render(request, 'success.html', {'user': infor})
 
 
 def write(request):
-    t = request.session['name']
-    return render(request, 'write.html')
+    name = request.session['name']
+    id = request.session['id']
+    infor = {}
+    infor['id'] = id
+    infor['name'] = name
+    return render(request, 'write.html', {'user': infor})
 
 
 @csrf_exempt

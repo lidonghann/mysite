@@ -1,0 +1,27 @@
+{% extends 'login.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-offset-3 col-md-6">
+    {% block head %}
+        <form class="form-horizontal" method='post' action="/login/" target="_self">
+                        <span class="heading">修改成功</span>
+                <div class="form-group">
+                    <div class="pwd">
+                        <a href="/success?id={{ user.id }}" class="">点此返回主页</a>
+                    </div>
+                </div>
+            </form>
+        {% endblock %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
