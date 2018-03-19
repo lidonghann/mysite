@@ -12,9 +12,10 @@
 <link rel="stylesheet" href="{% static 'css/base.css' %}" type="text/css" media="all">
 <link rel="stylesheet" href="{% static 'css/index.css' %}" type="text/css" media="all">
 <script src="{% static "js/modernizr.js" %}" type="text/javascript"></script>
+
 </head>
 <body>
-{{ user }}
+{{ user.username }}
 <div class="qq">登录成功,</div>
 <div id="wrapper">
   <header>
@@ -34,7 +35,7 @@
       <nav>
         <div  class="navigation">
           <ul class="menu">
-            <li><a href="/success.html">网站首页</a></li>
+            <li><a href="/success/?id={{ user.id }}">网站首页</a></li>
             <li><a href="/look/?id={{ user.id }}">个人信息</a>
             </li>
             <li><a href="/myphoto">我的相册</a>
@@ -60,14 +61,14 @@
   <div class="jztop"></div>
   <div class="container">
     <div class="bloglist f_l">
-        {% for foo in dictb %}
-      <h3><a href="/jstt/bj/2017-07-13/784.html">{{ foo.title }}</a></h3>
+        {% for foo in blog %}
+      <h3><a href="/jstt/bj/2017-07-13/784.html">{{ foo.blog_name }}</a></h3>
       <figure><img src="{% static 'images/img_1.jpg' %}" ></figure>
       <ul>
-        <p> {{ foo.context }}</p>
+          <p class="blog_context" style="text-overflow:ellipsis; overflow: hidden;"> <nobr>{{ foo.blog_context }} </nobr></p>
         <a  href="/jstt/bj/2017-07-13/784.html" target="_blank" class="readmore">阅读全文&gt;&gt;</a>
       </ul>
-      <p class="dateview"><span>{{ foo.time }}</span><span>作者：{{ foo.author }}</span><span>个人博客：[<a href="/jstt/bj/">心得笔记</a>]</span></p>
+      <p class="dateview"><span>{{ foo.blog_time }}</span><span>作者：{{ foo.author }}</span><span>个人博客：[<a href="/jstt/bj/">心得笔记</a>]</span></p>
         {% endfor %}
       <h3><a href="/jstt/bj/2015-01-09/740.html">【匆匆那些年】总结个人博客经历的这四年…</a></h3>
       <figure><img src="{% static 'images/img_2.jpg' %}" alt="【匆匆那些年】总结个人博客经历的这四年…"></figure>

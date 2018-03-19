@@ -1,3 +1,4 @@
+{% extends 'login.html' %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,15 +6,61 @@
     <title>Title</title>
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/base.css' %}" type="text/css" media="all">
+{% block update %}
+    <style type="text/css">
+        .update_pwd{position: absolute ;left: 20%}
+    </style>
+{% endblock %}
 </head>
 <body>
-<div class="look">
-姓名：{{user.name }}<br>
-年龄：{{user.age }}<br>
-邮箱：{{user.email }}<br>
-id:{{ user.id }}<br>
-    <a href="/login">退出</a>
-    <a href="/update?id={{ user.id}}">修改密码</a>
+<div class="container">
+    <div class="row">
+        <div class="col-md-offset-3 col-md-6">
+            {% block head %}
+                <form id="signupForm" class="form-horizontal" method="get" action="update_infor" target="_self">
+                    <span class="heading">用户个人信息</span>
+                    <div class="form-group">
+                        <label for="useage" class="col-sm-2 control-label">id：</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" readonly="readonly" name="id" value={{user.id }}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputEmail3" name="name" value={{ user.username }}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="useage" class="col-sm-2 control-label">年龄：</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="age" value={{user.age }} required >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">邮箱：</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" name="email" value={{user.email }} required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default" id="button">修改个人信息</button>
+                        <div class="update_pwd">
+                            <button type="button" class="btn btn-default" id="btn" onclick=window.location.href=('/update?id={{ user.id }}')>修改密码</button>
+                        </div>
+                    </div>
+                </form>
+            {% endblock %}
+        </div>
+    </div>
 </div>
+{#<div class="look">#}
+{#姓名：{{user.name }}<br>#}
+{#年龄：{{user.age }}<br>#}
+{#邮箱：{{user.email }}<br>#}
+{#id:{{ user.id }}<br>#}
+{#    <a href="/login">退出</a>#}
+{#    <a href="/update?id={{ user.id}}">修改密码</a>#}
+{#</div>#}
 </body>
 </html>

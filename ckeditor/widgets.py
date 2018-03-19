@@ -9,7 +9,6 @@ from django.contrib.admin import widgets as admin_widgets
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
-
 CKEDITOR_CONFIGS = dict((k, json.dumps(v)) for k, v in settings.CKEDITOR_CONFIGS.items())
 FILEBROWSER_PRESENT = 'filebrowser' in getattr(settings, 'INSTALLED_APPS', [])
 GRAPPELLI_PRESENT = 'grappelli' in getattr(settings, 'INSTALLED_APPS', [])

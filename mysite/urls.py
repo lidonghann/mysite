@@ -22,13 +22,14 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^regist/$', learn_views.regist),  # new
     url(r'^admin/', admin.site.urls),
-    url(r'^login/$',learn_views.login),
-    url(r'^look/$',learn_views.look),
-    url('^update/$',learn_views.update),
-    url('^success/$',learn_views.success),
-    url('^myphoto/$',learn_views.updateInfo),
-    url('^back_in/$',learn_views.back_in),
-    url('^write/$',learn_views.write),
-    url('^write_blog/$',learn_views.write_blog)
-    # url(r'^ckeditor/', include('ckeditor.urls')),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    url(r'^login/$', learn_views.login),
+    url(r'^look/$', learn_views.look),
+    url('^update/$', learn_views.update),
+    url('^success/$', learn_views.success),
+    url('^myphoto/$', learn_views.update_info),
+    url('^back_in/$', learn_views.back_in),
+    url('^write/$', learn_views.write),
+    url('^write_blog/$', learn_views.write_blog),
+    url('^look/update_infor/', learn_views.update_information),
+    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

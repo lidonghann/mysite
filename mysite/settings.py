@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'learn',
     'ckeditor',
     'ckeditor_uploader',
+    'bootstrap',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,7 @@ TEMPLATES = [
 MEDIA_URL='media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'media').replace('\\','/')
 WSGI_APPLICATION = 'mysite.wsgi.application'
+CKEDITOR_UPLOAD_PATH = "article_images"
 CKEDITOR_JQUERY_URL ='https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'
 
 # Database
@@ -112,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans' #LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
@@ -121,7 +123,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
+LOGIN_URL = '/login/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL='/static/'
