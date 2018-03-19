@@ -3,7 +3,7 @@
 from django.shortcuts import render
 import learn.models
 from learn.models import person
-from learn.models import user
+# from learn.models import user
 from learn.models import blog
 from django.http import HttpResponse
 from learn.forms import Addform
@@ -16,7 +16,9 @@ import time
 import os, sys
 from learn.models import image
 from time import strftime, gmtime
-
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+import json
 
 @csrf_exempt
 def regist(request):
@@ -25,7 +27,7 @@ def regist(request):
         age = request.POST['age']
         pwd = request.POST['pwd']
         email = request.POST['email']
-        p = user(name=name, pwd=pwd, email=email, age=age)
+        p = User(username=name, password=pwd, email=email, first_name=age)
         # p.name = a
         # p.age = b
         p.save()
@@ -33,20 +35,19 @@ def regist(request):
     else:
         return render(request, 'regist.html')
 
-
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
         name = request.POST['name']
         pwd = request.POST['pwd']
-        c = user.objects.filter(name=name, pwd=pwd).first()
+        c = User.objects.filter(username=name, password=pwd).first()
         try:
-            request.session['name'] = c.name
             request.session['id'] = c.id
-            print "idddddddddddddd", request.session['id']
-            print "request.session['name']", request.session['name']
             if c:
-                return render(request, 'success.html', {'user': c})
+                request.session['username'] = c.username
+                username = request.session['username']
+                blog_information = blog.objects.filter(author=username)
+                return render(request, 'success.html', {'user': c, 'blog': blog_information})
             else:
                 return HttpResponse("登陆失败")
         except AttributeError:
@@ -63,22 +64,19 @@ def login(request):
 
         # name = request.POST.get('name', '')
         # return render(request, 'base.html',{'str':str})
-
-
+# @login_required
 @csrf_exempt
 def look(request):
     print request.GET
     id = request.session['id']
     # pwd=request.GET.get('pwd')
-    user_info = user.objects.filter(id=id).first()
-    print user_info.name
+    user_info = User.objects.filter(id=id).first()
     if user_info:
         dictw = {}
-        dictw['name'] = user_info.name
-        dictw['age'] = user_info.age
+        dictw['username'] = user_info.username
+        dictw['age'] = user_info.first_name
         dictw['email'] = user_info.email
         dictw['id'] = user_info.id
-        print "dictw", dictw
         return render(request, 'look.html', {'user': dictw})
         # print user, type(user)
         # data_dict = {}
@@ -87,6 +85,8 @@ def look(request):
         # data_dict['name'] = i.name
         # data_dict['age'] = i.age
         # print data_dict
+
+
 @csrf_exempt
 def update_information(request):
     if request.method == 'GET':
@@ -94,14 +94,16 @@ def update_information(request):
         username = request.GET['name']
         userage = request.GET['age']
         email = request.GET['email']
-        new_user = user.objects.filter(id=id).first()
-        new_user.name = username
-        new_user.age = userage
+        new_user = User.objects.filter(id=id).first()
+        new_user.username = username
+        new_user.first_name = userage
         new_user.email = email
         new_user.save()
         return render(request, 'update_success.html', {'user': new_user})
     else:
         pass
+
+
 @csrf_exempt
 def update(request):
     print ("开始执行update")
@@ -110,9 +112,9 @@ def update(request):
         id = request.POST['id']
         pwd1 = request.POST['pwd1']
         pwd2 = request.POST['pwd2']
-        uu = user.objects.filter(id=id, pwd=pwd).first()
+        uu = User.objects.filter(id=id, pwd=pwd).first()
         if uu:
-            uu.pwd = pwd2
+            uu.password = pwd2
             uu.save()
             return render(request, 'update_success.html', {'user': uu})
         else:
@@ -125,11 +127,15 @@ def update(request):
 def success(request):
     id = request.session['id']
     print "444444444", id
-    name =request.session['name']
-    infor = {}
-    infor['id'] = id
-    infor['name'] = name
-    return render(request, 'success.html', {'user': infor})
+    username = request.session['username']
+    information = dict()
+    information['id'] = id
+    information['username'] = username
+    blog_information = blog.objects.filter(author=username)
+    print blog_information
+    for a in blog_information:
+        print a, "1111111111111111"
+    return render(request, 'success.html', {'user': information, 'blog': blog_information})
 
 
 @csrf_exempt
@@ -153,60 +159,67 @@ def success(request):
 #         return HttpResponse('图片为空')
 #     elif request.method == 'GET':
 #         return render(request, 'photo.html')
-def updateInfo(request):
+def update_info(request):
     if request.method == 'POST':
         photo = request.FILES['picfile']
         if photo:
-            phototime = request.session['name'] + str(time.time()).split('.')[0]
+            phototime = request.session['username'] + str(time.time()).split('.')[0]
             photo_last = str(photo).split('.')[-1]
             photoname = 'media/photos/%s.%s' % (phototime, photo_last)
             des_origin_f = open(photoname, "ab")
             for chunk in photo.chunks():
                 des_origin_f.write(chunk)
             des_origin_f.close()
-            count = models.image.objects.create(photo=photoname, name=phototime)
+            image_owner = request.session['username']
+            count = models.image.objects.create(photo=photoname, name=phototime, image_owner=image_owner)
             if count:
                 # dict={}
                 # dict['name']=phototime
                 # dict['road']=''.join(['/', photoname])
-                dicta = image.objects.all()
-                dictb = []
+                dicta = image.objects.filter(image_owner=image_owner)
+                photo_inform = []
                 for foo in dicta:
-                    tmp = {}
-                    tmp['name'] = foo.name
-                    tmp['road'] = ''.join(['/', unicode(foo.photo)])
-                    tmp['length'] = dicta.__len__()
-                    dictb.append(tmp)
-                print "dictb", dictb
-                for aa in dictb:
-                    print aa
-                    # print "22222", aa.road
-                    # print "33333", aa.length
-                return render(request, 'index.html', {'dictb': dictb})
+                    temp = dict()
+                    temp['name'] = foo.name
+                    temp['road'] = ''.join(['/', unicode(foo.photo)])
+                    photo_inform.append(temp)
+                json_photo = json.dumps(photo_inform)
+                print json_photo, "444444444444445"
+                return render(request, 'index.html', locals())
             else:
                 return HttpResponse('上传失败')
         return HttpResponse('图片为空')
     elif request.method == 'GET':
-        return render(request, 'index.html')
+        image_owner = request.session['username']
+        photo_inform_all = image.objects.filter(image_owner=image_owner)
+        photo_inform = []
+        for foo in photo_inform_all:
+            temp = dict()
+            temp['name'] = foo.name
+            temp['road'] = ''.join(['/', unicode(foo.photo)])
+            photo_inform.append(temp)
+        json_photo = json.dumps(photo_inform)
+        print json_photo, "444444444444445"
+        return render(request, 'index.html', locals())
 
 
 def back_in(request):
     id = request.session['id']
-    print "222222222222", id
-    name = request.session['name']
-    infor = {}
-    infor['id'] = id
-    infor['name'] = name
-    return render(request, 'success.html', {'user': infor})
+    username = request.session['username']
+    information = dict()
+    information['id'] = id
+    information['name'] = username
+    blog_information = blog.objects.filter(author=username)
+    return render(request, 'success.html', {'user': information, 'blog': blog_information})
 
 
 def write(request):
-    name = request.session['name']
+    name = request.session['username']
     id = request.session['id']
-    infor = {}
-    infor['id'] = id
-    infor['name'] = name
-    return render(request, 'write.html', {'user': infor})
+    information = dict()
+    information['id'] = id
+    information['name'] = name
+    return render(request, 'write.html', {'user': information})
 
 
 @csrf_exempt
@@ -214,24 +227,27 @@ def write_blog(request):
     if request.method == 'POST':
         tit = request.POST['tit']
         con = request.POST['con']
-        name = request.session['name']
+        username = request.session['username']
         this_time = strftime("%Y-%m-%d", gmtime())
-        b = blog(blog_time=this_time, blog_name=tit, blog_context=con, author=name)
+        b = blog(blog_time=this_time, blog_name=tit, blog_context=con, author=username)
         b.save()
         # dict={}
         # dict ['author']=b.author
         # dict['time']=b.blog_time
         # dict['context']=b.blog_context
         # dict['title']=b.blog_name
-        dicta = blog.objects.filter(author=name)
-        dictb = []
-        for foo in dicta:
-            temp = {}
-            temp['author'] = foo.author
-            temp['time'] = foo.blog_time
-            temp['context'] = foo.blog_context
-            temp['title'] = foo.blog_name
-            dictb.append(temp)
-        return render(request, 'success.html', {'dictb': dictb})
+        dicta = blog.objects.filter(author=username)
+        # print "type(dicta)", type(dicta)
+        # dictb = []
+        # for foo in dicta:
+        #     temp = dict()
+        #     temp['author'] = foo.author
+        #     temp['blog_time'] = foo.blog_time
+        #     temp['blog_context'] = foo.blog_context
+        #     print temp['blog_context'], "temp['blog_context']"
+        #     temp['blog_name'] = foo.blog_name
+        #     dictb.append(temp)
+        #     print dictb
+        return render(request, 'success.html', {'blog': dicta})
     else:
         return HttpResponse('提交失败')
