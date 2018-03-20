@@ -32,4 +32,5 @@ urlpatterns = [
     url('^write_blog/$', learn_views.write_blog),
     url('^look/update_infor/', learn_views.update_information),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    url('whole_passage/', learn_views.whole_passage)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
