@@ -251,3 +251,10 @@ def write_blog(request):
         return render(request, 'success.html', {'blog': dicta})
     else:
         return HttpResponse('提交失败')
+
+
+def whole_passage(request):
+    username = request.session['username']
+    blog_name = request.GET.get('blog_name')
+    blog_information = blog.objects.filter(author=username, blog_name=blog_name)
+    return render(request, 'whole_passage.html', {'blog': blog_information})
