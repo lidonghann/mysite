@@ -20,6 +20,7 @@ from mysite import views as learn_views
 from django.conf.urls.static import static
 admin.autodiscover()
 urlpatterns = [
+    url(r'^$', learn_views.login),
     url(r'^regist/$', learn_views.regist),  # new
     url(r'^admin/', admin.site.urls),
     url(r'^login/$', learn_views.login),
@@ -32,5 +33,8 @@ urlpatterns = [
     url('^write_blog/$', learn_views.write_blog),
     url('^look/update_infor/', learn_views.update_information),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
-    url('whole_passage/', learn_views.whole_passage)
+    url('^whole_passage/', learn_views.whole_passage),
+    url(r'show_info/', learn_views.show_info),
+    url(r'show_index/', learn_views.show_index),
+    url(r'^verification/$', learn_views.verification)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -17,12 +17,14 @@
     <div class="row">
         <div class="col-md-offset-3 col-md-6">
             {% block head %}
-                <form id="signupForm" class="form-horizontal" method='post' action="/regist/" target="_self">
+                <form id="signupForm" class="form-horizontal" method='post' action="" >
                     <span class="heading">用户注册</span>
                     <div class="form-group">
                         <label for="username" class="col-sm-2 control-label">用户名</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputEmail3" name="name" placeholder="用户名" required minlength="2">
+                            <input type="text" class="form-control" id="inputEmail3" name="name" placeholder="用户名"
+                                   required minlength="2">
+                            <span id="p"></span>
                         </div>
                         <div class="aa">
                             <i class="fa fa-user"></i>
@@ -31,7 +33,7 @@
                     <div class="form-group">
                         <label for="useage" class="col-sm-2 control-label">年龄：</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="age" placeholder="年龄" required >
+                            <input type="text" id="age" class="form-control" name="age" placeholder="年龄" required>
                         </div>
                         <div class="aa">
                             <i class="fa fa-wordpress"></i>
@@ -40,7 +42,7 @@
                     <div class="form-group">
                         <label for="email" class="col-sm-2 control-label">邮箱：</label>
                         <div class="col-sm-10">
-                            <input type="email" class="form-control" name="email" placeholder="email" required>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="email" required>
                         </div>
                         <div class="aa">
                             <i class="fa fa-address-book"></i>
@@ -62,6 +64,7 @@
                         <div class="col-sm-10">
                             <input type="password" class="form-control" id="inputPassword2" name="pwd2"
                                    placeholder="确认密码" required>
+                            <span id="pwd_err"></span>
                         </div>
                         <div class="aa">
                             <i class="fa fa-lock"></i>
@@ -69,7 +72,7 @@
                         <a href="#" class="fa fa-question-circle"></a>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-default" id="btn">注册</button>
+                        <button class="btn btn-default" id="btn">注册</button>
                         <div class="pwd">
                             <a href="/login" class="">已有账号，点此直接登录</a>
                         </div>
@@ -79,32 +82,86 @@
         </div>
     </div>
 </div>
-{#<div class="login">#}
-{#<form method='post'action="/regist/" target="_self">#}
-{#用户名：<input type="text" name="name"><br>#}
-{#密码：<input type="password" name="pwd"><br>#}
-{#年龄：<input type="text" name="age"><br>#}
-{#email:<input type="text"name="email"><br>#}
-{#<input type="submit" value="注册">#}
-{#    <a href="/login"><input type="button"value="登录"></a>#}
-{#</form>#}
-{#</div>#}
+
 
 </body>
 {% block js %}
     <script type="text/javascript">
-    var form1 = document.getElementById('btn');
-        form1.onclick = function(){
-            var pwd = document.getElementById('inputPassword').value;
-            var pwd2 =document.getElementById('inputPassword2').value;
-            if (pwd===pwd2){
-                return true;
-            }
-            else {
-                alert("两次密码不一致,请重新输入");
-                return false;
-            }
-        }
+
+
+        $(document).ready(function () {
+            $("input").keypress(function () {
+                $("input").css("background-color", "yellow");
+            });
+            $("input").keydown(function () {
+                $("input").css("background-color", "blue");
+            });
+            $("input").keyup(function () {
+                $("input").css("background-color", "pink");
+            });
+            $(".heading").hover(function () {
+                $(".heading").css("background-color", "pink");
+            }, function () {
+                $(".heading").css("background-color", "orange");
+            });
+
+            $("#inputEmail3").change(function () {
+                $.post("http://127.0.0.1:8777/verification/",
+                    {
+                        "name": $("#inputEmail3").val()
+                    },
+                    function (resp) {
+                        resp = JSON.parse(resp);
+                        if (resp['success']) {
+                            console.log("resp['success']=", resp['success'])
+                            $("#p").text('');
+                        } else {
+                            console.log(resp['error']);
+                            $("#p").text(resp['error']);
+                        }
+
+                    }
+                )
+            });
+            $("#inputPassword2").blur(function(){
+                 if ($("#inputPassword").val() != $("#inputPassword2").val()){
+                      $("#pwd_err").text("password repeat error");
+                 }else{
+                     $("#pwd_err").text("");
+                 }
+            });
+
+
+            $("button").click(function () {
+                if ($("#inputPassword").val() == $("#inputPassword2").val()){
+                     $.post("",
+                    {
+                        "name": $("#inputEmail3").val(),
+                        "age": $("#age").val(),
+                        "pwd": $("#inputPassword").val(),
+                        "email": $("#email").val(),
+                        "action": "regist"
+                    },
+                    function (resp) {
+                        resp = JSON.parse(resp);
+                        console.log(resp);
+                        if (resp['success']) {
+                            console.log("resp['success']=", resp['success']);
+                            window.location.href = "http://127.0.0.1:8777/login/"
+                        } else {
+                            console.log('rrrrrrrr');
+                        }
+
+                    }
+                );}
+                else{
+                    alert("pwd repeat error");
+                    return false;
+                }
+
+            });
+        });
+
     </script>
 {% endblock %}
 </html>

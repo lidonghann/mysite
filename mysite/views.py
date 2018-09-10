@@ -19,51 +19,165 @@ from time import strftime, gmtime
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 import json
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate, login
+
+# 注册
+# @csrf_exempt
+# def regist(request):
+#     if request.method == 'POST':
+#         name = request.POST['name']
+#         age = request.POST['age']
+#         pwd = request.POST['pwd']
+#         email = request.POST['email']
+#         p = User(username=name, password=pwd, email=email, first_name=age)
+#         # p.name = a
+#         # p.age = b
+#         p.save()
+#         return render(request, 'login.html')
+#     else:
+#         return render(request, 'regist.html')
+@csrf_exempt
+def verification(request):
+    if request.method == 'POST':
+        resp = {'success': 0, 'error': ''}
+        name = request.POST.get('name', '')
+        if User.objects.filter(username=name).exists():
+            resp['error'] = "名称已存在"
+        else:
+            resp['success'] = 1
+        return HttpResponse(json.dumps(resp))
+
 
 @csrf_exempt
 def regist(request):
     if request.method == 'POST':
-        name = request.POST['name']
-        age = request.POST['age']
-        pwd = request.POST['pwd']
-        email = request.POST['email']
-        p = User(username=name, password=pwd, email=email, first_name=age)
-        # p.name = a
-        # p.age = b
-        p.save()
-        return render(request, 'login.html')
+        resp = {'success': 0, 'error': ''}
+        name = request.POST.get('name', '')
+        age = request.POST.get('age', '')
+        pwd = request.POST.get('pwd', '')
+        email = request.POST.get('email', '')
+        # action = request.POST.get('action', '')
+        # if User.objects.filter(username=name).exists():
+        #     resp['error'] = "名称已存在"
+        # else:
+            # if action == "regist":
+        if not age == '' and not pwd == '' and not email == '':
+            p = User(username=name, password=pwd, email=email, first_name=age)
+            p.save()
+            resp['success'] = 1
+        else:
+            resp['error'] = u'age pwd email is null'
+        # else:
+        #     resp['success'] = 1
+        return HttpResponse(json.dumps(resp))
     else:
         return render(request, 'regist.html')
+
 
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
-        name = request.POST['name']
-        pwd = request.POST['pwd']
-        c = User.objects.filter(username=name, password=pwd).first()
-        try:
-            request.session['id'] = c.id
-            if c:
-                request.session['username'] = c.username
-                username = request.session['username']
-                blog_information = blog.objects.filter(author=username)
-                return render(request, 'success.html', {'user': c, 'blog': blog_information})
-            else:
-                return HttpResponse("登陆失败")
-        except AttributeError:
-            return HttpResponse("登陆失败,请检查用户名密码是否正确")
+        resp = {'success': 0, 'error': ''}
+        name = request.POST.get('name')
+        pwd = request.POST.get('pwd')
+        user = User.objects.filter(username=name, password=pwd).first()
+        if user:
+            request.session['id'] = user.id
+            request.session['username'] = user.username
+            resp['success'] = 1
+        else:
+            resp['error'] = '用户名或密码错误'
+        return HttpResponse(json.dumps(resp))
     else:
         return render(request, 'login.html')
-        # models.person.objects.create(name="lidonghan",age=23)
-        # p=person(name="lhkh",age=21)
-        # p.save()
-        # person.objects.get_or_create(name="WZT", age=23)
-        # person.objects.all()
-        # str=person.objects.filter(name__contains="li").update(name='www')
+
+# 登录
+# @csrf_exempt
+# def login(request):
+#     if request.method == 'POST':
+#         name = request.POST['name']
+#         pwd = request.POST['pwd']
+#         c = User.objects.filter(username=name, password=pwd).first()
+#         try:
+#             request.session['id'] = c.id
+#             if c:
+#                 request.session['username'] = c.username
+#                 username = request.session['username']
+#                 blog_information = blog.objects.filter(author=username)
+#                 # return HttpResponseRedirect("/show_info/")
+#                 # limit = 1
+#                 # paginator = Paginator(blog_information, limit)
+#                 # page = request.GET.get('page', 1)
+#                 # # item_info = paginator.page(page)
+#                 # try:
+#                 #     item_info = paginator.page(page)  # 获取某页面对象
+#                 # except EmptyPage:
+#                 #     item_info = paginator.page(paginator.num_pages)
+#                 # except PageNotAnInteger:
+#                 #     item_info = paginator.page(1)
+#                 return render(request, 'success.html', {'user': c, 'item_info': {}})
+#             else:
+#                 return HttpResponse("登陆失败")
+#         except AttributeError:
+#             return HttpResponse("登陆失败,请检查用户名密码是否正确")
+#     else:
+#         return render(request, 'login.html')
+
+#展示首页
+@csrf_exempt
+def show_index(request):
+    resp = {'success': 0, 'error': '', 'data': []}
+
+    try:
+        id = request.session['id']
+        name = request.session['username']
+        resp['success'] = 1
+        resp['data'].append(name)
+        blog_infor = blog.objects.filter(author=name)
+        for obj in blog_infor:
+            blog_att = {}
+            blog_att['blog_name'] = obj.blog_name
+            blog_att['blog_context'] = obj.blog_context
+            blog_att['author'] = obj.author
+            blog_att['blog_time'] = str(obj.blog_time)
+            resp['data'].append(blog_att)
+    except:
+        print(traceback.format_exc())
+    return HttpResponse(json.dumps(resp))
 
 
-        # name = request.POST.get('name', '')
-        # return render(request, 'base.html',{'str':str})
+
+@csrf_exempt
+def show_info(request):
+    resp = {'success': 0, 'error': '', 'data': []}
+    try:
+        name = request.session['username']
+        resp['success'] = 1
+        page = int(request.GET.get('page', 1))
+        limit = 1
+        blog_information = blog.objects.filter(author=name)[(page - 1) * limit:(page - 1) * limit + limit]
+        for obj in blog_information:
+            resp['data'].append({
+                'blog_name': obj.blog_name,
+            })
+
+            # paginator = Paginator(blog_information, limit)
+
+            # # item_info = paginator.page(page)
+            # try:
+            #     item_info = paginator.page(page)  # 获取某页面对象
+            # except EmptyPage:
+            #     item_info = paginator.page(paginator.num_pages)
+            # except PageNotAnInteger:
+            #     item_info = paginator.page(1)
+    except:
+        print(traceback.format_exc())
+    return HttpResponse(json.dumps(resp))
+
+
+# 查看个人信息
 # @login_required
 @csrf_exempt
 def look(request):
@@ -87,6 +201,7 @@ def look(request):
         # print data_dict
 
 
+# 修改个人信息
 @csrf_exempt
 def update_information(request):
     if request.method == 'GET':
@@ -104,6 +219,7 @@ def update_information(request):
         pass
 
 
+# 修改密码
 @csrf_exempt
 def update(request):
     print ("开始执行update")
@@ -124,17 +240,14 @@ def update(request):
         return render(request, 'update.html', {'user_id': user_id})
 
 
+# 修改信息或密码成功后的返回首页
 def success(request):
     id = request.session['id']
-    print "444444444", id
     username = request.session['username']
     information = dict()
     information['id'] = id
     information['username'] = username
     blog_information = blog.objects.filter(author=username)
-    print blog_information
-    for a in blog_information:
-        print a, "1111111111111111"
     return render(request, 'success.html', {'user': information, 'blog': blog_information})
 
 
@@ -159,6 +272,8 @@ def success(request):
 #         return HttpResponse('图片为空')
 #     elif request.method == 'GET':
 #         return render(request, 'photo.html')
+
+# 上传图片
 def update_info(request):
     if request.method == 'POST':
         photo = request.FILES['picfile']
@@ -184,7 +299,6 @@ def update_info(request):
                     temp['road'] = ''.join(['/', unicode(foo.photo)])
                     photo_inform.append(temp)
                 json_photo = json.dumps(photo_inform)
-                print json_photo, "444444444444445"
                 return render(request, 'index.html', locals())
             else:
                 return HttpResponse('上传失败')
@@ -203,6 +317,7 @@ def update_info(request):
         return render(request, 'index.html', locals())
 
 
+# photo.html界面的返回首页
 def back_in(request):
     id = request.session['id']
     username = request.session['username']
@@ -222,6 +337,7 @@ def write(request):
     return render(request, 'write.html', {'user': information})
 
 
+# 书写博客
 @csrf_exempt
 def write_blog(request):
     if request.method == 'POST':
@@ -253,8 +369,26 @@ def write_blog(request):
         return HttpResponse('提交失败')
 
 
+# 阅读全文
+@csrf_exempt
 def whole_passage(request):
-    username = request.session['username']
+    resp = {'success': 0, 'error': '', 'data': []}
     blog_name = request.GET.get('blog_name')
-    blog_information = blog.objects.filter(author=username, blog_name=blog_name)
-    return render(request, 'whole_passage.html', {'blog': blog_information})
+    if request.method == 'POST':
+        try:
+            username = request.session['username']
+            blog_information = blog.objects.filter(author=username, blog_name=blog_name)
+            for obj in blog_information:
+                blog_att = {}
+                blog_att['blog_name'] = obj.blog_name
+                blog_att['blog_context'] = obj.blog_context
+                blog_att['author'] = obj.author
+                blog_att['blog_time'] = str(obj.blog_time)
+                resp['data'].append(blog_att)
+            resp['success'] = 1
+        except:
+            resp['error'] = '获取信息出错'
+        # blog_information = blog.objects.get(author=username, blog_name=blog_name)  /已经知道blog_information只有一个对象，可以使用get
+        return HttpResponse(json.dumps(resp))
+    else:
+        return render(request, "whole_passage.html", {'name': blog_name})

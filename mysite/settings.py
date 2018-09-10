@@ -25,7 +25,6 @@ SECRET_KEY = ')%#(=r=jp368+7w9=w0$fwtcb0!=570f#gte=g9xdxh=y!m)o0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -71,8 +70,8 @@ TEMPLATES = [
         },
     },
 ]
-MEDIA_URL='media/'
-MEDIA_ROOT=os.path.join(BASE_DIR,'media').replace('\\','/')
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media').replace('\\', '/')
 WSGI_APPLICATION = 'mysite.wsgi.application'
 CKEDITOR_UPLOAD_PATH = "article_images"
 CKEDITOR_JQUERY_URL ='https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'
