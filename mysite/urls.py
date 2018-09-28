@@ -32,9 +32,13 @@ urlpatterns = [
     url('^write/$', learn_views.write),
     url('^write_blog/$', learn_views.write_blog),
     url('^look/update_infor/', learn_views.update_information),
-    url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    # url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url('^whole_passage/', learn_views.whole_passage),
     url(r'show_info/', learn_views.show_info),
     url(r'show_index/', learn_views.show_index),
-    url(r'^verification/$', learn_views.verification)
+    url(r'^verification/$', learn_views.verification),
+    url(r'^edit/$', learn_views.edit_blog),
+    url(r'^write_blog_self/$', learn_views.edit_blog_self),
+    url(r'^write_blog_submit/$', learn_views.write_blog_submit),
+    url(r'^delete_blog/$', learn_views.delete_blog)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
